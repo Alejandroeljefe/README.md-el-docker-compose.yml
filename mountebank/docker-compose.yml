@@ -11,3 +11,5 @@ services:
 networks:
   local:
     external: true
+Reto cloud optimizado con agentes unificados
+cyberguard_challenge_core
