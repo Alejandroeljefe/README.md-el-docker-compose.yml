@@ -1,0 +1,31 @@
+pip install cryptography
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from base64 import urlsafe_b64encode
+import os
+
+# Contraseña que pediste
+PASSWORD = b"creador2"
+
+def generar_clave(password: bytes, salt: bytes = None) -> tuple[bytes, bytes]:
+    """Genera una clave Fernet a partir de la contraseña"""
+    if salt is None:
+        salt = os.urandom(16)  # Salt aleatorio
+    
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=480000,  # Número alto de iteraciones (recomendado)
+    )
+    key = urlsafe_b64encode(kdf.derive(password))
+    return key, salt
+
+def cifrar(texto: str, password: bytes = PASSWORD) -> str:
+    """Cifra un texto y devuelve: salt + texto_cifrado (todo en base64)"""
+    key, salt = generar_clave(password)
+    f = Fernet(key)
+    cifrado = f.encrypt(texto.encode())
+    
+    # Guardamos el salt +
